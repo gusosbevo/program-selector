@@ -12,126 +12,126 @@ const handleAuthError = (error) => {
 
 export const getPrograms = () =>
   axios
-    .get(`${baseUrl}/api/programs`, { headers: getHeaders() })
+    .get(`${baseUrl}/programs`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const createProgram = (data) =>
   axios
-    .post(`${baseUrl}/api/programs`, data, { headers: getHeaders() })
+    .post(`${baseUrl}/programs`, data, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const updateProgram = (id, data) =>
   axios
-    .put(`${baseUrl}/api/programs/${id}`, data, { headers: getHeaders() })
+    .put(`${baseUrl}/programs/${id}`, data, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const deleteProgram = (id) =>
   axios
-    .delete(`${baseUrl}/api/programs/${id}`, { headers: getHeaders() })
+    .delete(`${baseUrl}/programs/${id}`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const getSections = () =>
   axios
-    .get(`${baseUrl}/api/sections`, { headers: getHeaders() })
+    .get(`${baseUrl}/sections`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const createSection = (data) =>
   axios
-    .post(`${baseUrl}/api/sections`, data, { headers: getHeaders() })
+    .post(`${baseUrl}/sections`, data, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const updateSection = (id, data) =>
   axios
-    .put(`${baseUrl}/api/sections/${id}`, data, { headers: getHeaders() })
+    .put(`${baseUrl}/sections/${id}`, data, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const deleteSection = (id) =>
   axios
-    .delete(`${baseUrl}/api/sections/${id}`, { headers: getHeaders() })
+    .delete(`${baseUrl}/sections/${id}`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const getQuestions = () =>
   axios
-    .get(`${baseUrl}/api/questions`, { headers: getHeaders() })
+    .get(`${baseUrl}/questions`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const createQuestion = (data) =>
   axios
-    .post(`${baseUrl}/api/questions`, data, { headers: getHeaders() })
+    .post(`${baseUrl}/questions`, data, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const updateQuestion = (id, data) =>
   axios
-    .put(`${baseUrl}/api/questions/${id}`, data, { headers: getHeaders() })
+    .put(`${baseUrl}/questions/${id}`, data, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const deleteQuestion = (id) =>
   axios
-    .delete(`${baseUrl}/api/questions/${id}`, { headers: getHeaders() })
+    .delete(`${baseUrl}/questions/${id}`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const getAnswers = (questionId) =>
   axios
-    .get(`${baseUrl}/api/questions/${questionId}/answers`, { headers: getHeaders() })
+    .get(`${baseUrl}/questions/${questionId}/answers`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const createAnswer = (questionId, data) =>
   axios
-    .post(`${baseUrl}/api/questions/${questionId}/answers`, data, { headers: getHeaders() })
+    .post(`${baseUrl}/questions/${questionId}/answers`, data, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const updateAnswer = (questionId, answerId, data) =>
   axios
-    .put(`${baseUrl}/api/questions/${questionId}/answers/${answerId}`, data, { headers: getHeaders() })
+    .put(`${baseUrl}/questions/${questionId}/answers/${answerId}`, data, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const deleteAnswer = (questionId, answerId) =>
   axios
-    .delete(`${baseUrl}/api/questions/${questionId}/answers/${answerId}`, { headers: getHeaders() })
+    .delete(`${baseUrl}/questions/${questionId}/answers/${answerId}`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const getAnswerScores = () =>
   axios
-    .get(`${baseUrl}/api/scoring`, { headers: getHeaders() })
+    .get(`${baseUrl}/scoring`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const updateAnswerScore = (answerId, programId, points) =>
   axios
-    .put(`${baseUrl}/api/scoring/${answerId}/${programId}`, { points }, { headers: getHeaders() })
+    .put(`${baseUrl}/scoring/${answerId}/${programId}`, { points }, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const batchUpdateScores = (scores) =>
   axios
-    .post(`${baseUrl}/api/scoring/batch`, { scores }, { headers: getHeaders() })
+    .post(`${baseUrl}/scoring/batch`, { scores }, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const getSurveys = () =>
   axios
-    .get(`${baseUrl}/api/surveys`, { headers: getHeaders() })
+    .get(`${baseUrl}/surveys`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
 
 export const getSurvey = (id) =>
   axios
-    .get(`${baseUrl}/api/surveys/${id}`, { headers: getHeaders() })
+    .get(`${baseUrl}/surveys/${id}`, { headers: getHeaders() })
     .then((res) => res.data)
     .catch(handleAuthError);
