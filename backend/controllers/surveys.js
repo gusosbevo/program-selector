@@ -24,8 +24,23 @@ router.get('/:id', authenticate, async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    const survey = await surveyService.createSurvey(req.body.student_name);
-    res.status(201).json(survey);
+    const survey = await surveyService.createSurvey(req.body.user_name);
+
+    for (const answer of req.body.answers) await surveyService.addResponse(survey.id, answer.question_id, answer.answer_id);
+
+    const results = await surveyService.completeSurvey(survey.id);
+
+    res.status(201).json({
+      survey_id: survey.id,
+      results: results.programs.map((p) => ({
+        program_id: p.program_id,
+        total_points: p.score,
+        rank: p.rank,
+        questions_answered: p.questions_answered,
+        top_contributing_answers: p.top_contributing_answers
+      })),
+      calculated_at: results.calculated_at
+    });
   } catch (error) {
     next(error);
   }

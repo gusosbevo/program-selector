@@ -1,5 +1,6 @@
 // services/scoringService.js
 const { AnswerScore } = require('../models');
+const { sequelize } = require('../util/db');
 
 const getAllScores = async () => {
   return await AnswerScore.findAll();
@@ -17,17 +18,23 @@ const upsertScore = async (answerId, programId, points) => {
 };
 
 const batchUpsertScores = async (scores) => {
-  await AnswerScore.bulkCreate(
-    scores.map((score) => ({
-      answer_id: score.answer_id,
-      program_id: score.program_id,
-      points: score.points
-    })),
+  const placeholders = scores.map((_, i) => `($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3}, NOW(), NOW())`).join(',');
+  const values = scores.flatMap((s) => [s.answer_id, s.program_id, s.points]);
+
+  const [results] = await sequelize.query(
+    `
+    INSERT INTO answer_scores (answer_id, program_id, points, created_at, updated_at)
+    VALUES ${placeholders}
+    ON CONFLICT (answer_id, program_id) 
+    DO UPDATE SET points = EXCLUDED.points, updated_at = NOW()
+    RETURNING *
+  `,
     {
-      updateOnDuplicate: ['points', 'updated_at']
+      bind: values
     }
   );
-  return { updated: scores.length };
+
+  return results;
 };
 
 module.exports = {

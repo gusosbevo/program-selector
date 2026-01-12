@@ -24,20 +24,20 @@ const calculateResults = async (surveyId) => {
     });
 
     for (const score of scores) {
-      if (!programScores[score.program_id]) {
-        programScores[score.program_id] = 0;
-        programQuestionCounts[score.program_id] = 0;
-        programAnswerContributions[score.program_id] = [];
+      if (!programScores[score.programId]) {
+        programScores[score.programId] = 0;
+        programQuestionCounts[score.programId] = 0;
+        programAnswerContributions[score.programId] = [];
       }
 
-      programScores[score.program_id] += score.points;
-      programQuestionCounts[score.program_id]++;
+      programScores[score.programId] += parseFloat(score.points);
+      programQuestionCounts[score.programId]++;
 
       if (Math.abs(score.points) >= 5) {
-        programAnswerContributions[score.program_id].push({
+        programAnswerContributions[score.programId].push({
           question: response.question.text,
           answer: response.answer.text,
-          points: score.points
+          points: parseFloat(score.points)
         });
       }
     }

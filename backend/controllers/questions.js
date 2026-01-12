@@ -21,17 +21,6 @@ router.get('/', authenticate, async (req, res, next) => {
   }
 });
 
-router.post('/', authenticate, async (req, res, next) => {
-  try {
-    console.log('req.body', req.body);
-    const question = await Question.create(req.body);
-    res.status(201).json(question);
-  } catch (error) {
-    console.error('Error details:', error.message);
-    next(error);
-  }
-});
-
 router.put('/', authenticate, async (req, res, next) => {
   try {
     const { id, ...data } = req.body;

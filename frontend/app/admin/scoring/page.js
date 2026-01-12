@@ -31,7 +31,7 @@ const ScoringPage = () => {
   const initialScores = useMemo(() => {
     const scoresMap = {};
     answerScores.forEach((score) => {
-      const key = `${score.answer_id}-${score.program_id}`;
+      const key = `${score.answerId}-${score.programId}`;
       scoresMap[key] = score.points;
     });
     return scoresMap;
@@ -42,8 +42,21 @@ const ScoringPage = () => {
 
   const saveMutation = useMutation({
     mutationFn: batchUpdateScores,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['answerScores']);
+    onSuccess: (updatedScores) => {
+      queryClient.setQueryData(['answerScores'], (old = []) => {
+        const normalized = updatedScores.map((s) => ({
+          id: s.id,
+          points: s.points,
+          createdAt: s.created_at,
+          updatedAt: s.updated_at,
+          answerId: s.answer_id,
+          programId: s.program_id
+        }));
+
+        const updated = old.filter((s) => !normalized.some((n) => n.answerId === s.answerId && n.programId === s.programId));
+
+        return [...updated, ...normalized];
+      });
       setScoreChanges({});
     }
   });

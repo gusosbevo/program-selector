@@ -1,4 +1,3 @@
-// app/admin/sections/page.jsx
 'use client';
 
 import { useState } from 'react';
@@ -45,6 +44,8 @@ const SectionsPage = () => {
     setEditingSection(null);
   };
 
+  const sortedSections = [...sections].sort((a, b) => a.id - b.id);
+
   if (isLoading) return <div className="p-8">Laddar...</div>;
 
   return (
@@ -58,7 +59,7 @@ const SectionsPage = () => {
       </div>
 
       <div className="space-y-3">
-        {sections.map((section) => (
+        {sortedSections.map((section) => (
           <Card key={section.id}>
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
@@ -81,7 +82,7 @@ const SectionsPage = () => {
         ))}
       </div>
 
-      <div className="text-sm text-gray-600 mt-4">{sections.length} sektioner</div>
+      <div className="text-sm text-gray-600 mt-4">{sortedSections.length} sektioner</div>
 
       {modalOpen && <SectionModal section={editingSection} onClose={handleCloseModal} />}
     </div>

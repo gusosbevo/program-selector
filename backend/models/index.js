@@ -20,14 +20,14 @@ Answer.belongsTo(Question, { foreignKey: 'question_id' });
 Answer.belongsToMany(Program, { through: AnswerScore, as: 'programs' });
 Program.belongsToMany(Answer, { through: AnswerScore, as: 'answers' });
 
-Survey.hasMany(Response);
-Response.belongsTo(Survey);
+Survey.hasMany(Response, { foreignKey: 'survey_id' });
+Response.belongsTo(Survey, { foreignKey: 'survey_id' });
 
-Response.belongsTo(Question);
-Question.hasMany(Response);
+Response.belongsTo(Question, { foreignKey: 'question_id' });
+Question.hasMany(Response, { foreignKey: 'question_id' });
 
-Response.belongsTo(Answer);
-Answer.hasMany(Response);
+Response.belongsTo(Answer, { foreignKey: 'answer_id' });
+Answer.hasMany(Response, { foreignKey: 'answer_id' });
 
 Question.belongsTo(Answer, { as: 'showIfAnswer', foreignKey: 'show_if_answer_id' });
 

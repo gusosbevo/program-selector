@@ -1,4 +1,3 @@
-// app/admin/questions/page.jsx
 'use client';
 
 import { useState } from 'react';
@@ -28,6 +27,7 @@ const QuestionsPage = () => {
     queryKey: ['questions'],
     queryFn: getQuestions
   });
+  console.log('questions', questions);
 
   const deleteQuestionMutation = useMutation({
     mutationFn: deleteQuestion,
@@ -82,7 +82,7 @@ const QuestionsPage = () => {
 
   const groupedQuestions = sections.map((section) => ({
     ...section,
-    questions: questions.filter((q) => q.question_section_id === section.id)
+    questions: questions.filter((q) => q.question_section_id === section.id).sort((a, b) => a.id - b.id)
   }));
 
   if (isLoading) return <div className="p-8">Laddar...</div>;

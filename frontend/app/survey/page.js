@@ -31,8 +31,8 @@ const SurveyPage = () => {
   });
 
   const sortedSections = sections?.sort((a, b) => a.order - b.order) || [];
-  const currentSectionData = sortedSections[currentSection];
-  const sectionQuestions = questions?.filter((q) => q.section_id === currentSectionData?.id).sort((a, b) => a.order - b.order) || [];
+  const currentSectionData = sortedSections[currentSection - 1];
+  const sectionQuestions = questions?.filter((q) => q.question_section_id === currentSectionData?.id).sort((a, b) => a.order - b.order) || [];
 
   const isCurrentSectionComplete = () => sectionQuestions.every((q) => !q.required || answers[q.id]);
 
