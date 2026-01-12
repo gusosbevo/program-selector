@@ -1,4 +1,3 @@
-// components/admin/ProgramModal.js
 'use client';
 
 import { useState } from 'react';
@@ -8,15 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { createProgram, updateProgram } from '@/lib/requests';
+import { upsertProgram } from '@/lib/requests';
 
 const ProgramModal = ({ program, onClose }) => {
-  const [formData, setFormData] = useState(program ? { name: program.name, description: program.description || '' } : { name: '', description: '' });
+  const [formData, setFormData] = useState(program ? { id: program.id, name: program.name, description: program.description || '' } : { name: '', description: '' });
   const queryClient = useQueryClient();
-  const isEdit = !!program;
 
   const mutation = useMutation({
-    mutationFn: (data) => (isEdit ? updateProgram(program.id, data) : createProgram(data)),
+    mutationFn: upsertProgram,
     onSuccess: () => {
       queryClient.invalidateQueries(['programs']);
       onClose();
@@ -32,7 +30,7 @@ const ProgramModal = ({ program, onClose }) => {
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Redigera program' : 'Nytt program'}</DialogTitle>
+          <DialogTitle>{program ? 'Redigera program' : 'Nytt program'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -51,7 +49,7 @@ const ProgramModal = ({ program, onClose }) => {
               Avbryt
             </Button>
             <Button type="submit" disabled={mutation.isLoading}>
-              {isEdit ? 'Spara' : 'Skapa'}
+              {program ? 'Spara' : 'Skapa'}
             </Button>
           </div>
         </form>

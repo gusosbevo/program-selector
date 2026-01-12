@@ -82,7 +82,7 @@ const QuestionsPage = () => {
 
   const groupedQuestions = sections.map((section) => ({
     ...section,
-    questions: questions.filter((q) => q.section_id === section.id)
+    questions: questions.filter((q) => q.question_section_id === section.id)
   }));
 
   if (isLoading) return <div className="p-8">Laddar...</div>;
@@ -134,19 +134,21 @@ const QuestionsPage = () => {
                                 Lägg till svar
                               </Button>
                             </div>
-                            {question.answers?.map((answer) => (
-                              <div key={answer.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                <span className="text-sm">{answer.text}</span>
-                                <div className="flex gap-1">
-                                  <Button variant="ghost" size="sm" onClick={() => handleEditAnswer(question.id, answer)}>
-                                    <Pencil className="w-3 h-3" />
-                                  </Button>
-                                  <Button variant="ghost" size="sm" onClick={() => handleDeleteAnswer(question.id, answer.id)}>
-                                    <Trash2 className="w-3 h-3 text-red-600" />
-                                  </Button>
+                            {question.answers
+                              ?.sort((a, b) => a.id - b.id)
+                              .map((answer) => (
+                                <div key={answer.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                  <span className="text-sm">{answer.text}</span>
+                                  <div className="flex gap-1">
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditAnswer(question.id, answer)}>
+                                      <Pencil className="w-3 h-3" />
+                                    </Button>
+                                    <Button variant="ghost" size="sm" onClick={() => handleDeleteAnswer(question.id, answer.id)}>
+                                      <Trash2 className="w-3 h-3 text-red-600" />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
                           </div>
                         )}
                       </div>
@@ -160,7 +162,7 @@ const QuestionsPage = () => {
       </div>
 
       {questionModalOpen && <QuestionModal question={editingQuestion} sections={sections} onClose={() => setQuestionModalOpen(false)} />}
-      {answerModalOpen && <AnswerModal questionId={selectedQuestionId} answer={editingAnswer} onClose={() => setAnswerModalOpen(false)} />}
+      {answerModalOpen && <AnswerModal question_id={selectedQuestionId} answer={editingAnswer} onClose={() => setAnswerModalOpen(false)} />}
     </div>
   );
 };

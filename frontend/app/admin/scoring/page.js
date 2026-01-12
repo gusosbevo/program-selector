@@ -56,10 +56,18 @@ const ScoringPage = () => {
   };
 
   const handleSave = () => {
-    const scoresArray = Object.entries(scores).map(([key, points]) => {
-      const [answerId, programId] = key.split('-');
-      return { answer_id: parseInt(answerId), program_id: parseInt(programId), points };
-    });
+    const scoresArray = Object.entries(scoreChanges)
+      .filter(([_, points]) => points !== '')
+      .map(([key, points]) => {
+        const [answerId, programId] = key.split('-');
+        return {
+          answer_id: parseInt(answerId),
+          program_id: parseInt(programId),
+          points: parseFloat(points)
+        };
+      });
+
+    if (scoresArray.length === 0) return;
     saveMutation.mutate(scoresArray);
   };
 

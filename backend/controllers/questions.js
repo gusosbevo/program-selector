@@ -23,8 +23,21 @@ router.get('/', authenticate, async (req, res, next) => {
 
 router.post('/', authenticate, async (req, res, next) => {
   try {
+    console.log('req.body', req.body);
     const question = await Question.create(req.body);
     res.status(201).json(question);
+  } catch (error) {
+    console.error('Error details:', error.message);
+    next(error);
+  }
+});
+
+router.put('/', authenticate, async (req, res, next) => {
+  try {
+    const { id, ...data } = req.body;
+    if (id) data.id = id;
+    const [question, created] = await Question.upsert(data);
+    res.status(created ? 201 : 200).json(question);
   } catch (error) {
     next(error);
   }
@@ -54,27 +67,14 @@ router.delete('/:id', authenticate, async (req, res, next) => {
   }
 });
 
-router.post('/:questionId/answers', authenticate, async (req, res, next) => {
+router.put('/:questionId/answers', authenticate, async (req, res, next) => {
   try {
-    const answer = await Answer.create({
-      ...req.body,
-      question_id: req.params.questionId
-    });
-    res.status(201).json(answer);
-  } catch (error) {
-    next(error);
-  }
-});
+    const { id, ...data } = req.body;
+    data.question_id = req.params.questionId;
+    if (id) data.id = id;
 
-router.put('/:questionId/answers/:answerId', authenticate, async (req, res, next) => {
-  try {
-    const answer = await Answer.findOne({
-      where: { id: req.params.answerId, question_id: req.params.questionId }
-    });
-    if (!answer) return res.status(404).json({ error: 'Answer not found' });
-
-    await answer.update(req.body);
-    res.json(answer);
+    const [answer, created] = await Answer.upsert(data);
+    res.status(created ? 201 : 200).json(answer);
   } catch (error) {
     next(error);
   }

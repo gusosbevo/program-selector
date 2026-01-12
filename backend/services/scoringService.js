@@ -17,9 +17,17 @@ const upsertScore = async (answerId, programId, points) => {
 };
 
 const batchUpsertScores = async (scores) => {
-  await Promise.all(scores.map(({ answer_id, program_id, points }) => upsertScore(answer_id, program_id, points)));
-
-  return { success: true };
+  await AnswerScore.bulkCreate(
+    scores.map((score) => ({
+      answer_id: score.answer_id,
+      program_id: score.program_id,
+      points: score.points
+    })),
+    {
+      updateOnDuplicate: ['points', 'updated_at']
+    }
+  );
+  return { updated: scores.length };
 };
 
 module.exports = {

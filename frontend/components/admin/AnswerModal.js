@@ -1,4 +1,3 @@
-// components/admin/AnswerModal.js
 'use client';
 
 import { useState } from 'react';
@@ -7,15 +6,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createAnswer, updateAnswer } from '@/lib/requests';
+import { upsertAnswer } from '@/lib/requests';
 
-const AnswerModal = ({ questionId, answer, onClose }) => {
+const AnswerModal = ({ question_id, answer, onClose }) => {
   const [formData, setFormData] = useState(answer ? { text: answer.text, order: answer.order } : { text: '', order: 0 });
   const queryClient = useQueryClient();
-  const isEdit = !!answer;
 
   const mutation = useMutation({
-    mutationFn: (data) => (isEdit ? updateAnswer(questionId, answer.id, data) : createAnswer(questionId, data)),
+    mutationFn: (data) => upsertAnswer(question_id, { ...data, ...(answer?.id && { id: answer.id }) }),
     onSuccess: () => {
       queryClient.invalidateQueries(['questions']);
       onClose();
@@ -31,7 +29,7 @@ const AnswerModal = ({ questionId, answer, onClose }) => {
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Redigera svar' : 'Nytt svar'}</DialogTitle>
+          <DialogTitle>{answer ? 'Redigera svar' : 'Nytt svar'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -45,7 +43,7 @@ const AnswerModal = ({ questionId, answer, onClose }) => {
               Avbryt
             </Button>
             <Button type="submit" disabled={mutation.isLoading}>
-              {isEdit ? 'Spara' : 'Skapa'}
+              {answer ? 'Spara' : 'Skapa'}
             </Button>
           </div>
         </form>

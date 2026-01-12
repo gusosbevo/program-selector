@@ -1,4 +1,3 @@
-// components/admin/SectionModal.js
 'use client';
 
 import { useState } from 'react';
@@ -8,15 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { createSection, updateSection } from '@/lib/requests';
+import { upsertSection } from '@/lib/requests';
 
 const SectionModal = ({ section, onClose }) => {
-  const [formData, setFormData] = useState(section ? { title: section.title, description: section.description || '', order: section.order } : { title: '', description: '', order: 0 });
+  const [formData, setFormData] = useState(section ? { id: section.id, title: section.title, description: section.description || '', order: section.order } : { title: '', description: '', order: 0 });
   const queryClient = useQueryClient();
-  const isEdit = !!section;
 
   const mutation = useMutation({
-    mutationFn: (data) => (isEdit ? updateSection(section.id, data) : createSection(data)),
+    mutationFn: upsertSection,
     onSuccess: () => {
       queryClient.invalidateQueries(['sections']);
       onClose();
@@ -32,7 +30,7 @@ const SectionModal = ({ section, onClose }) => {
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Redigera sektion' : 'Ny sektion'}</DialogTitle>
+          <DialogTitle>{section ? 'Redigera sektion' : 'Ny sektion'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -51,7 +49,7 @@ const SectionModal = ({ section, onClose }) => {
               Avbryt
             </Button>
             <Button type="submit" disabled={mutation.isLoading}>
-              {isEdit ? 'Spara' : 'Skapa'}
+              {section ? 'Spara' : 'Skapa'}
             </Button>
           </div>
         </form>

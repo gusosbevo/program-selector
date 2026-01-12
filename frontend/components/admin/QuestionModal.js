@@ -1,4 +1,3 @@
-// components/admin/QuestionModal.js
 'use client';
 
 import { useState } from 'react';
@@ -8,25 +7,33 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { createQuestion, updateQuestion } from '@/lib/requests';
+import { upsertQuestion } from '@/lib/requests';
 
 const QuestionModal = ({ question, sections, onClose }) => {
   const [formData, setFormData] = useState(
-    question ? { text: question.text, section_id: question.section_id, required: question.required, order: question.order } : { text: '', section_id: '', required: false, order: 0 }
+    question
+      ? { id: question.id, text: question.text, question_section_id: question.question_section_id, required: question.required, order: question.order }
+      : { text: '', question_section_id: sections[0]?.id || '', required: false, order: 0 }
   );
   const queryClient = useQueryClient();
-  const isEdit = !!question;
 
   const mutation = useMutation({
-    mutationFn: (data) => (isEdit ? updateQuestion(question.id, data) : createQuestion(data)),
+    mutationFn: upsertQuestion,
     onSuccess: () => {
       queryClient.invalidateQueries(['questions']);
       onClose();
+    },
+    onError: (error) => {
+      console.error('Mutation error:', error);
     }
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!formData.question_section_id) {
+      alert('Välj en sektion');
+      return;
+    }
     mutation.mutate(formData);
   };
 
@@ -34,7 +41,7 @@ const QuestionModal = ({ question, sections, onClose }) => {
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Redigera fråga' : 'Ny fråga'}</DialogTitle>
+          <DialogTitle>{question ? 'Redigera fråga' : 'Ny fråga'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -45,7 +52,7 @@ const QuestionModal = ({ question, sections, onClose }) => {
 
           <div>
             <Label>Sektion</Label>
-            <Select value={formData.section_id.toString()} onValueChange={(value) => setFormData({ ...formData, section_id: parseInt(value) })}>
+            <Select value={formData.question_section_id?.toString() || ''} onValueChange={(value) => setFormData({ ...formData, question_section_id: parseInt(value) })}>
               <SelectTrigger>
                 <SelectValue placeholder="Välj sektion" />
               </SelectTrigger>
@@ -69,7 +76,7 @@ const QuestionModal = ({ question, sections, onClose }) => {
               Avbryt
             </Button>
             <Button type="submit" disabled={mutation.isLoading}>
-              {isEdit ? 'Spara' : 'Skapa'}
+              {question ? 'Spara' : 'Skapa'}
             </Button>
           </div>
         </form>
