@@ -211,7 +211,7 @@ const ResultsView = ({ results, programs, onRestart }) => {
 
   if (!results?.results || results.results.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 px-4 flex items-center justify-center">
+      <div className="min-h-dvh bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 px-4 flex items-center justify-center">
         <Card className="p-8">
           <h2 className="text-2xl font-bold mb-4">Inga resultat</h2>
           <p className="mb-4">Kunde inte beräkna resultat. Kontrollera konsolen för mer information.</p>
@@ -237,7 +237,7 @@ const ResultsView = ({ results, programs, onRestart }) => {
   const bottomPrograms = rankedPrograms.length > 6 ? rankedPrograms.slice(-3).reverse() : rankedPrograms.slice(3).reverse();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 px-4">
+    <div className="min-h-dvh bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
           <Card className="p-6 md:p-8 shadow-2xl">
@@ -382,7 +382,7 @@ const SurveyPage = () => {
   if (showResults && results) return <ResultsView results={results} programs={programs} onRestart={() => window.location.reload()} />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-4 md:py-12 px-4 flex items-center">
+    <div className="min-h-dvh bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-4 md:py-12 px-4 md:flex md:items-center">
       <div className="max-w-2xl mx-auto w-full">
         {!isWelcome && <ProgressBar current={currentQuestionIndex + 1} total={totalQuestions} />}
 
@@ -427,7 +427,7 @@ const SurveyPage = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
               transition={{ duration: 0.3 }}
-              className="min-h-[calc(100vh-8rem)] md:min-h-0 flex flex-col"
+              className="min-h-[calc(100dvh-8rem)] md:min-h-0 flex flex-col"
             >
               {currentQuestion.section && (
                 <motion.div className="mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
