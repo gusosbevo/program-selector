@@ -9,11 +9,28 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { upsertQuestion } from '@/lib/requests';
 
+const CATEGORIES = ['Teknik', 'Naturvetenskap', 'Samhällsvetenskap', 'Kreativitet', 'Ekonomi', 'Hälsa & Vård', 'Språk', 'Matematik', 'Övrigt'];
+
 const QuestionModal = ({ question, sections, onClose }) => {
   const [formData, setFormData] = useState(
     question
-      ? { id: question.id, text: question.text, tips: question.tips, question_section_id: question.question_section_id, required: question.required, order: question.order }
-      : { text: '', tips: '', question_section_id: sections[0]?.id || '', required: false, order: 0 }
+      ? {
+          id: question.id,
+          text: question.text,
+          tips: question.tips,
+          category: question.category || 'Övrigt',
+          question_section_id: question.question_section_id,
+          required: question.required,
+          order: question.order
+        }
+      : {
+          text: '',
+          tips: '',
+          category: 'Övrigt',
+          question_section_id: sections[0]?.id || '',
+          required: false,
+          order: 0
+        }
   );
   const queryClient = useQueryClient();
 
@@ -30,16 +47,14 @@ const QuestionModal = ({ question, sections, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.question_section_id) {
-      alert('Välj en sektion');
-      return;
-    }
+    if (!formData.question_section_id) return alert('Välj en sektion');
+
     mutation.mutate(formData);
   };
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{question ? 'Redigera fråga' : 'Ny fråga'}</DialogTitle>
         </DialogHeader>
@@ -60,20 +75,38 @@ const QuestionModal = ({ question, sections, onClose }) => {
             />
           </div>
 
-          <div>
-            <Label>Sektion</Label>
-            <Select value={formData.question_section_id?.toString() || ''} onValueChange={(value) => setFormData({ ...formData, question_section_id: parseInt(value) })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Välj sektion" />
-              </SelectTrigger>
-              <SelectContent>
-                {sections.map((section) => (
-                  <SelectItem key={section.id} value={section.id.toString()}>
-                    {section.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Kategori</Label>
+              <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Välj kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Sektion</Label>
+              <Select value={formData.question_section_id?.toString() || ''} onValueChange={(value) => setFormData({ ...formData, question_section_id: parseInt(value) })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Välj sektion" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sections.map((section) => (
+                    <SelectItem key={section.id} value={section.id.toString()}>
+                      {section.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

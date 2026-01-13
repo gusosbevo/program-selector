@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import axios from 'axios';
 import { baseUrl } from '@/lib/api-config';
 
@@ -76,6 +77,224 @@ const ProgressBar = ({ current, total }) => {
   );
 };
 
+const getMatchStrength = (points, maxPoints) => {
+  const percentage = (points / maxPoints) * 100;
+  if (percentage >= 70) return { emoji: '🔥', label: 'Stark matchning', color: 'from-orange-500 to-red-500' };
+  if (percentage >= 50) return { emoji: '✨', label: 'Bra matchning', color: 'from-blue-500 to-purple-500' };
+  return { emoji: '💭', label: 'Möjlig matchning', color: 'from-gray-400 to-gray-500' };
+};
+
+const CategoryBreakdown = ({ breakdown }) => {
+  if (!breakdown || Object.keys(breakdown).length === 0) return null;
+
+  const total = Object.values(breakdown).reduce((sum, val) => sum + val, 0);
+  const categories = Object.entries(breakdown).sort(([, a], [, b]) => b - a);
+
+  return (
+    <div className="space-y-3">
+      <h4 className="text-sm font-semibold text-gray-700">Poängfördelning per kategori</h4>
+      {categories.map(([category, points]) => {
+        const percentage = (points / total) * 100;
+        return (
+          <div key={category} className="space-y-1">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">{category}</span>
+              <span className="font-semibold text-gray-800">{points}p</span>
+            </div>
+            <div className="bg-gray-100 rounded-full h-2 overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${percentage}%` }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const MatchingAnswers = ({ answers }) => {
+  if (!answers || answers.length === 0) return null;
+
+  const topAnswers = answers.slice(0, 5);
+
+  return (
+    <div className="space-y-2">
+      <h4 className="text-sm font-semibold text-gray-700">Dina svar som matchade</h4>
+      <div className="space-y-2">
+        {topAnswers.map((item, idx) => (
+          <motion.div key={idx} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className="text-sm text-gray-600 pl-3 border-l-2 border-blue-300">
+            <div className="font-medium text-gray-700">{item.question_text || item.question}</div>
+            <div className="text-gray-500">
+              → {item.answer_text || item.answer} <span className="text-blue-600 font-semibold">+{item.points}p</span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ProgramCard = ({ program, index, maxPoints, isBottom }) => {
+  const [expanded, setExpanded] = useState(false);
+  const matchStrength = getMatchStrength(program.points, maxPoints);
+  const matchPercentage = Math.round((program.points / maxPoints) * 100);
+
+  return (
+    <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + index * 0.15 }}>
+      <div className={`p-4 md:p-6 rounded-xl shadow-md hover:shadow-lg transition-all ${isBottom ? 'bg-gradient-to-r from-gray-50 to-gray-100' : 'bg-gradient-to-r from-blue-50 to-purple-50'}`}>
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-3 md:gap-4 flex-1">
+            <motion.span
+              className={`text-2xl md:text-3xl font-bold ${isBottom ? 'text-gray-300' : 'text-blue-300'}`}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.5 + index * 0.15, type: 'spring' }}
+            >
+              #{index + 1}
+            </motion.span>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-lg md:text-xl font-semibold">{program.name}</h3>
+                {!isBottom && <span className="text-xl">{matchStrength.emoji}</span>}
+              </div>
+              {!isBottom && (
+                <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
+                  <span>{matchStrength.label}</span>
+                  <span>•</span>
+                  <span>{matchPercentage}% matchning</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <motion.span
+            className={`text-xl md:text-2xl font-bold bg-gradient-to-r ${matchStrength.color} bg-clip-text text-transparent whitespace-nowrap`}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.6 + index * 0.15, type: 'spring' }}
+          >
+            <AnimatedScore target={program.points} delay={600 + index * 150} /> p
+          </motion.span>
+        </div>
+
+        {program.description && (
+          <motion.p className="text-sm md:text-base text-gray-600 mb-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 + index * 0.15 }}>
+            {program.description}
+          </motion.p>
+        )}
+
+        <Button variant="ghost" size="sm" onClick={() => setExpanded(!expanded)} className="w-full justify-center gap-2 text-sm hover:bg-white/50">
+          {expanded ? 'Dölj detaljer' : 'Varför denna matchning?'}
+          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </Button>
+
+        <AnimatePresence>
+          {expanded && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
+              <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
+                <CategoryBreakdown breakdown={program.category_breakdown} />
+                <MatchingAnswers answers={program.matching_answers} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+};
+
+const ResultsView = ({ results, programs, onRestart }) => {
+  const [showBottom, setShowBottom] = useState(false);
+
+  if (!results?.results || results.results.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 px-4 flex items-center justify-center">
+        <Card className="p-8">
+          <h2 className="text-2xl font-bold mb-4">Inga resultat</h2>
+          <p className="mb-4">Kunde inte beräkna resultat. Kontrollera konsolen för mer information.</p>
+          <Button onClick={onRestart}>Försök igen</Button>
+        </Card>
+      </div>
+    );
+  }
+
+  const rankedPrograms = results.results
+    .map((r) => {
+      return {
+        ...programs.find((p) => p.id === r.program_id),
+        points: r.total_points,
+        category_breakdown: r.category_breakdown,
+        matching_answers: r.matching_answers
+      };
+    })
+    .sort((a, b) => b.points - a.points);
+
+  const maxPoints = rankedPrograms[0]?.points || 100;
+  const topPrograms = rankedPrograms.slice(0, 3);
+  const bottomPrograms = rankedPrograms.length > 6 ? rankedPrograms.slice(-3).reverse() : rankedPrograms.slice(3).reverse();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
+          <Card className="p-6 md:p-8 shadow-2xl">
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Dina resultat</h1>
+              <p className="text-gray-600 mb-6 md:mb-8">Baserat på dina svar rekommenderar vi följande program:</p>
+            </motion.div>
+
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">🎯 Bästa matchningar</h2>
+              <div className="space-y-3 md:space-y-4">
+                {topPrograms.map((program, index) => (
+                  <ProgramCard key={program.id} program={program} index={index} maxPoints={maxPoints} isBottom={false} />
+                ))}
+              </div>
+            </div>
+
+            {bottomPrograms.length > 0 && (
+              <div className="mb-6">
+                <Button variant="outline" onClick={() => setShowBottom(!showBottom)} className="w-full justify-center gap-2 mb-4">
+                  {showBottom ? 'Dölj andra program' : 'Visa andra program'}
+                  {showBottom ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </Button>
+
+                <AnimatePresence>
+                  {showBottom && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <h2 className="text-lg font-semibold mb-4 text-gray-600">Andra program</h2>
+                      <div className="space-y-3">
+                        {bottomPrograms.map((program, index) => (
+                          <ProgramCard key={program.id} program={program} index={rankedPrograms.length - bottomPrograms.length + index} maxPoints={maxPoints} isBottom={true} />
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
+              <Button onClick={onRestart} className="w-full mt-6 md:mt-8 py-5 md:py-6 text-base md:text-lg">
+                Gör om undersökningen
+              </Button>
+            </motion.div>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
 const SurveyPage = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1);
   const [answers, setAnswers] = useState({});
@@ -111,6 +330,10 @@ const SurveyPage = () => {
       }, 250);
       setResults(data);
       setShowResults(true);
+    },
+    onError: (error) => {
+      console.error('Survey submission error:', error);
+      alert('Fel vid inlämning av undersökning. Se konsolen för mer info.');
     }
   });
 
@@ -156,68 +379,7 @@ const SurveyPage = () => {
     setAnswers({ ...answers, [currentQuestion.id]: answerId });
   };
 
-  if (showResults && results) {
-    const rankedPrograms = results.results.map((r) => ({
-      ...programs.find((p) => p.id === r.program_id),
-      points: r.total_points
-    }));
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 px-4">
-        <div className="max-w-2xl mx-auto">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-            <Card className="p-6 md:p-8 shadow-2xl">
-              <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Dina resultat</h1>
-                <p className="text-gray-600 mb-6 md:mb-8">Baserat på dina svar rekommenderar vi följande program:</p>
-              </motion.div>
-
-              <div className="space-y-3 md:space-y-4">
-                {rankedPrograms.map((program, index) => (
-                  <motion.div key={program.id} initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + index * 0.15 }}>
-                    <div className="p-4 md:p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl shadow-md hover:shadow-lg transition-shadow">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-3 md:gap-4">
-                          <motion.span
-                            className="text-2xl md:text-3xl font-bold text-gray-300"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.5 + index * 0.15, type: 'spring' }}
-                          >
-                            #{index + 1}
-                          </motion.span>
-                          <h3 className="text-xl md:text-2xl font-semibold">{program.name}</h3>
-                        </div>
-                        <motion.span
-                          className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 0.6 + index * 0.15, type: 'spring' }}
-                        >
-                          <AnimatedScore target={program.points} delay={600 + index * 150} /> p
-                        </motion.span>
-                      </div>
-                      {program.description && (
-                        <motion.p className="text-sm md:text-base text-gray-600 ml-10 md:ml-14" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 + index * 0.15 }}>
-                          {program.description}
-                        </motion.p>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
-                <Button onClick={() => window.location.reload()} className="w-full mt-6 md:mt-8 py-5 md:py-6 text-base md:text-lg">
-                  Gör om undersökningen
-                </Button>
-              </motion.div>
-            </Card>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
+  if (showResults && results) return <ResultsView results={results} programs={programs} onRestart={() => window.location.reload()} />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-4 md:py-12 px-4 flex items-center">
@@ -282,7 +444,7 @@ const SurveyPage = () => {
                     </Label>
                   </motion.div>
 
-                  <RadioGroup value={answers[currentQuestion.id]?.toString()} onValueChange={(value) => selectAnswer(parseInt(value))}>
+                  <RadioGroup value={answers[currentQuestion.id]?.toString() || ''} onValueChange={(value) => selectAnswer(parseInt(value))}>
                     <div className="space-y-3">
                       {currentQuestion.answers?.map((answer, index) => (
                         <motion.div key={answer.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + index * 0.08 }} whileTap={{ scale: 0.98 }}>

@@ -17,6 +17,7 @@ const calculateResults = async (surveyId) => {
   const programScores = {};
   const programQuestionCounts = {};
   const programAnswerContributions = {};
+  const programCategoryBreakdown = {};
 
   for (const response of survey.responses) {
     const scores = await AnswerScore.findAll({
@@ -28,16 +29,24 @@ const calculateResults = async (surveyId) => {
         programScores[score.programId] = 0;
         programQuestionCounts[score.programId] = 0;
         programAnswerContributions[score.programId] = [];
+        programCategoryBreakdown[score.programId] = {};
       }
 
-      programScores[score.programId] += parseFloat(score.points);
+      const points = parseFloat(score.points);
+      programScores[score.programId] += points;
       programQuestionCounts[score.programId]++;
 
-      if (Math.abs(score.points) >= 5) {
+      const category = response.question.category || 'Övrigt';
+      programCategoryBreakdown[score.programId][category] = (programCategoryBreakdown[score.programId][category] || 0) + points;
+
+      if (Math.abs(points) >= 5) {
         programAnswerContributions[score.programId].push({
-          question: response.question.text,
-          answer: response.answer.text,
-          points: parseFloat(score.points)
+          question_id: response.question.id,
+          question_text: response.question.text,
+          answer_id: response.answer.id,
+          answer_text: response.answer.text,
+          points,
+          category
         });
       }
     }
@@ -56,6 +65,7 @@ const calculateResults = async (surveyId) => {
         program_name: program.name,
         score: Math.round(avgScore * 10) / 10,
         questions_answered: questionCount,
+        category_breakdown: programCategoryBreakdown[program.id] || {},
         top_contributing_answers: (programAnswerContributions[program.id] || []).sort((a, b) => Math.abs(b.points) - Math.abs(a.points)).slice(0, 3)
       };
     })

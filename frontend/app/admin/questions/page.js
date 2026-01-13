@@ -27,7 +27,6 @@ const QuestionsPage = () => {
     queryKey: ['questions'],
     queryFn: getQuestions
   });
-  console.log('questions', questions);
 
   const deleteQuestionMutation = useMutation({
     mutationFn: deleteQuestion,
@@ -112,8 +111,11 @@ const QuestionsPage = () => {
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <p className="font-medium">{question.text}</p>
-                            {question.required && <span className="text-xs text-red-600 ml-2">Obligatorisk</span>}
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-medium">{question.text}</p>
+                              {question.required && <span className="text-xs text-red-600">Obligatorisk</span>}
+                            </div>
+                            {question.category && <span className="inline-block text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{question.category}</span>}
                           </div>
                           <div className="flex gap-2">
                             <Button variant="ghost" size="sm" onClick={() => handleEditQuestion(question)}>

@@ -18,6 +18,11 @@ Question.init(
       type: DataTypes.TEXT,
       allowNull: true
     },
+    category: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      defaultValue: 'Övrigt'
+    },
     order: {
       type: DataTypes.INTEGER,
       defaultValue: 0

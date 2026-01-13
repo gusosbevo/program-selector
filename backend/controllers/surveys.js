@@ -35,9 +35,10 @@ router.post('/', async (req, res, next) => {
       results: results.programs.map((p) => ({
         program_id: p.program_id,
         total_points: p.score,
+        category_breakdown: p.category_breakdown,
+        matching_answers: p.top_contributing_answers,
         rank: p.rank,
-        questions_answered: p.questions_answered,
-        top_contributing_answers: p.top_contributing_answers
+        questions_answered: p.questions_answered
       })),
       calculated_at: results.calculated_at
     });
