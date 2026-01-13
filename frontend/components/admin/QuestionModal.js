@@ -12,8 +12,8 @@ import { upsertQuestion } from '@/lib/requests';
 const QuestionModal = ({ question, sections, onClose }) => {
   const [formData, setFormData] = useState(
     question
-      ? { id: question.id, text: question.text, question_section_id: question.question_section_id, required: question.required, order: question.order }
-      : { text: '', question_section_id: sections[0]?.id || '', required: false, order: 0 }
+      ? { id: question.id, text: question.text, tips: question.tips, question_section_id: question.question_section_id, required: question.required, order: question.order }
+      : { text: '', tips: '', question_section_id: sections[0]?.id || '', required: false, order: 0 }
   );
   const queryClient = useQueryClient();
 
@@ -48,6 +48,16 @@ const QuestionModal = ({ question, sections, onClose }) => {
           <div>
             <Label>Frågetext</Label>
             <Input value={formData.text} onChange={(e) => setFormData({ ...formData, text: e.target.value })} required />
+          </div>
+
+          <div>
+            <Label>Tips (valfritt)</Label>
+            <textarea
+              value={formData.tips || ''}
+              onChange={(e) => setFormData({ ...formData, tips: e.target.value })}
+              className="w-full min-h-[80px] px-3 py-2 border rounded-md resize-y"
+              placeholder="T.ex. Tänk på vad som känns mest naturligt för dig..."
+            />
           </div>
 
           <div>

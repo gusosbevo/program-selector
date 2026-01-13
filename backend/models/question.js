@@ -14,6 +14,10 @@ Question.init(
       type: DataTypes.TEXT,
       allowNull: false
     },
+    tips: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     order: {
       type: DataTypes.INTEGER,
       defaultValue: 0
